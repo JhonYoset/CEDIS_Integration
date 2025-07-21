@@ -14,53 +14,182 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
     .card {
-      background-color: rgba(255, 255, 255, 0.95); /* Fondo blanco con leve transparencia */
+      background-color: rgba(255, 255, 255, 0.95);
       border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
     }
 
     .form-container {
-      max-width: 400px;
+      max-width: 500px;
       width: 100%;
+    }
+
+    .logo-container {
+      margin-bottom: 30px;
+    }
+
+    .logo-container img {
+      max-width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      color: #B31818;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    .btn-unsa {
+      background: linear-gradient(135deg, #B31818 0%, #8B1212 100%);
+      border: none;
+      color: white;
+      padding: 18px 40px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 50px;
+      width: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(179, 24, 24, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-unsa:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(179, 24, 24, 0.4);
+      background: linear-gradient(135deg, #8B1212 0%, #B31818 100%);
+      color: white;
+    }
+
+    .btn-unsa:active {
+      transform: translateY(0);
+    }
+
+    .btn-unsa:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .alert {
+      border-radius: 15px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      border: none;
+      font-weight: 500;
+    }
+
+    .alert-danger {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      color: white;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+      color: white;
+    }
+
+    .footer-text {
+      margin-top: 30px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .card-body {
+        padding: 2rem !important;
+      }
+      
+      .title {
+        font-size: 24px;
+      }
+      
+      .btn-unsa {
+        padding: 16px 30px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="d-flex justify-content-center align-items-center min-vh-100">
+  <div class="login-container">
     <div class="card shadow form-container">
       <div class="card-body p-5">
-        <div class="text-center mb-4">
-          <img src="assets/img/ing_sistemas_logov5.png" alt="Logo de la Institución" class="img-fluid mb-3" style="max-width: 200px;">
-          <h1 class="text-danger">Centro de Documentación de Ingeniería de Sistemas</h1>
+        <div class="text-center logo-container">
+          <img src="assets/img/ing_sistemas_logov5.png" alt="Logo UNSA" class="img-fluid">
+          <h1 class="title">Centro de Documentación de Ingeniería de Sistemas</h1>
+          <p class="subtitle">Universidad Nacional de San Agustín de Arequipa</p>
         </div>
 
-        <form (ngSubmit)="handleLogin()" class="form-signin">
-          <div class="form-floating mb-3">
-            <input type="email" class="form-control" id="email" placeholder="correo@example.com"
-              [(ngModel)]="email" name="email" required />
-            <label for="email">Correo electrónico *</label>
-          </div>
+        <!-- Mensajes de error y éxito -->
+        <div class="alert alert-danger" *ngIf="errorMessage">
+          <i class="fa fa-exclamation-triangle me-2"></i>
+          {{errorMessage}}
+        </div>
+        
+        <div class="alert alert-success" *ngIf="successMessage">
+          <i class="fa fa-check-circle me-2"></i>
+          {{successMessage}}
+        </div>
 
-          <div class="form-floating mb-4">
-            <input type="password" class="form-control" id="password" placeholder="Password"
-              [(ngModel)]="password" name="password" required />
-            <label for="password">Contraseña *</label>
-          </div>
+        <!-- Botón principal de ingreso -->
+        <div class="d-grid">
+          <button 
+            class="btn btn-unsa" 
+            type="button" 
+            (click)="handleUnsaLogin()" 
+            [disabled]="loading">
+            <span *ngIf="loading" class="loading-spinner"></span>
+            <span *ngIf="loading">Autenticando...</span>
+            <span *ngIf="!loading">
+              <i class="fa fa-graduation-cap me-2"></i>
+              Ingresar con Correo UNSA
+            </span>
+          </button>
+        </div>
 
-          <div class="d-grid gap-3">
-            <button class="btn btn-lg btn-danger fw-bold" type="submit" [disabled]="loading">
-              <span *ngIf="loading">Iniciando sesión...</span>
-              <span *ngIf="!loading">Iniciar sesión</span>
-            </button>
-
-            <button class="btn btn-lg btn-outline-secondary fw-bold" type="button" (click)="handleGuestLogin()" [disabled]="loading">
-              <span *ngIf="loading">Iniciando sesión...</span>
-              <span *ngIf="!loading">Iniciar como invitado</span>
-            </button>
-          </div>
-        </form>
+        <p class="footer-text text-center">
+          Solo para personal y estudiantes de la UNSA<br>
+          <small>Cuentas @unsa.edu.pe</small>
+        </p>
       </div>
     </div>
   </div>

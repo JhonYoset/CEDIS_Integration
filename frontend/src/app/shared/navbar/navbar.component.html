@@ -51,32 +51,18 @@
             </ul> -->
 
             <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="#">
-                        Account
-                    </a>
-                </li>
-                <li class="dropdown">
+                <li class="dropdown" *ngIf="currentUser">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-
-                            Dropdown
-                            <b class="caret"></b>
-                        
+                        <i class="pe-7s-user"></i>
+                        {{currentUser.nombre}} {{currentUser.apellido}}
+                        <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something</a></li>
+                        <li><a routerLink="/user"><i class="pe-7s-user"></i> Mi Perfil</a></li>
+                        <li><a href="#"><i class="pe-7s-config"></i> Configuración</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">Separated link</a></li>
+                        <li><a (click)="logout()" style="cursor: pointer;"><i class="pe-7s-power"></i> Cerrar Sesión</a></li>
                     </ul>
-                </li>
-                <li>
-                    <a href="#">
-                        Log out
-                    </a>
                 </li>
                 <li class="separator hidden-lg hidden-md"></li>
             </ul>

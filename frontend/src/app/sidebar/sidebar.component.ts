@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 
 declare const $: any;
 declare interface RouteInfo {
@@ -28,22 +28,26 @@ export class SidebarComponent implements OnInit {
   userInitials: string;
   userRole: string;
 
-  constructor(private userService: UserService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.menuItems = ROUTES.filter(menuItem => menuItem);
-    this.userName = this.userService.getUserName();
-    this.userInitials = this.getInitials(this.userName);
-    this.userRole = this.userService.getUserRole();
+    
+    // Suscribirse a cambios en el usuario actual
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userName = `${user.nombre} ${user.apellido}`;
+        this.userInitials = this.getInitials(this.userName);
+        this.userRole = user.tipo;
+      }
+    });
   }
 
   getInitials(name: string): string {
-    // If user is guest, return "IN"
-    if (this.userService.isGuestUser()) {
-      return 'IN';
+    if (!name) {
+      return 'U';
     }
     
-    // For regular users, get initials from name
     return name
       .split(' ')
       .map(word => word[0])
@@ -59,9 +63,6 @@ export class SidebarComponent implements OnInit {
   };
 
   logout() {
-    // Clear user session
-    this.userService.logout();
-    // Navigate to login page
-    this.router.navigate(['/login']);
+    this.authService.logout();
   }
 }

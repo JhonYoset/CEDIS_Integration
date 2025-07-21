@@ -1,23 +1,140 @@
 <div class="main-content">
     <div class="container-fluid">
+        <!-- Estadísticas principales -->
+        <div class="row" *ngIf="!loading">
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-warning text-center">
+                                    <i class="pe-7s-file text-warning"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Documentos</p>
+                                    {{dashboardStats.totalDocumentos}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <hr>
+                            <div class="stats">
+                                <i class="pe-7s-refresh-2"></i> Total en sistema
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-success text-center">
+                                    <i class="pe-7s-users text-success"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Lectores</p>
+                                    {{dashboardStats.totalLectores}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <hr>
+                            <div class="stats">
+                                <i class="pe-7s-refresh-2"></i> Registrados
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-info text-center">
+                                    <i class="pe-7s-bookmarks text-info"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Préstamos</p>
+                                    {{dashboardStats.totalPrestamos}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <hr>
+                            <div class="stats">
+                                <i class="pe-7s-refresh-2"></i> Total realizados
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="card">
+                    <div class="content">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="icon-big icon-danger text-center">
+                                    <i class="pe-7s-attention text-danger"></i>
+                                </div>
+                            </div>
+                            <div class="col-xs-7">
+                                <div class="numbers">
+                                    <p>Pendientes</p>
+                                    {{dashboardStats.prestamosPendientes}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <hr>
+                            <div class="stats">
+                                <i class="pe-7s-refresh-2"></i> Por devolver
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="row" *ngIf="loading">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="content text-center">
+                        <i class="pe-7s-refresh-2 fa-spin" style="font-size: 2rem;"></i>
+                        <p>Cargando datos del dashboard...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
         <div class="row">
             <div class="col-md-4">
                 <lbd-chart
-                  [title]="'Email Statistics'"
-                  [subtitle]="'Last Campaign Performance'"
+                  [title]="'Estado de Documentos'"
+                  [subtitle]="'Distribución actual'"
                   [chartClass]="'ct-perfect-fourth'"
                   [chartType]="emailChartType"
                   [chartData]="emailChartData"
                   [legendItems]="emailChartLegendItems"
                   [withHr]="true"
                   [footerIconClass]="'fa fa-clock-o'"
-                  [footerText]="'Campaign sent 2 days ago'">
+                  [footerText]="'Actualizado hace 2 horas'">
                 </lbd-chart>
             </div>
             <div class="col-md-8">
                 <lbd-chart
-                  [title]="'Users Behavior'"
-                  [subtitle]="'24 Hours performance'"
+                  [title]="'Actividad Mensual'"
+                  [subtitle]="'Préstamos y devoluciones'"
                   [chartType]="hoursChartType"
                   [chartData]="hoursChartData"
                   [chartOptions]="hoursChartOptions"
@@ -25,15 +142,15 @@
                   [legendItems]="hoursChartLegendItems"
                   [withHr]="true"
                   [footerIconClass]="'fa fa-history'"
-                  [footerText]="'Updated 3 minutes ago'">
+                  [footerText]="'Actualizado hace 5 minutos'">
                 </lbd-chart>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
                 <lbd-chart
-                  [title]="'2021 Sales'"
-                  [subtitle]="'All products including Taxes'"
+                  [title]="'Crecimiento Anual'"
+                  [subtitle]="'Nuevos documentos y lectores'"
                   [chartType]="activityChartType"
                   [chartData]="activityChartData"
                   [chartOptions]="activityChartOptions"
@@ -41,132 +158,52 @@
                   [legendItems]="activityChartLegendItems"
                   [withHr]="true"
                   [footerIconClass]="'fa fa-check'"
-                  [footerText]="'Data information certified'">
+                  [footerText]="'Datos verificados'">
                 </lbd-chart>
             </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="header">
-                        <h4 class="title">Tasks</h4>
-                        <p class="category">Backend development</p>
+                        <h4 class="title">Actividades Recientes</h4>
+                        <p class="category">Últimas acciones del sistema</p>
                     </div>
                     <div class="content">
                         <div class="table-full-width">
                             <table class="table">
                                 <tbody>
                                     <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox1" type="checkbox">
-                                                <label for="checkbox1">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Sign contract for "What are conference organizers afraid of?"</td>
+                                        <td><i class="pe-7s-plus text-success"></i></td>
+                                        <td>Nuevo documento registrado: "Algoritmos y Estructuras de Datos"</td>
                                         <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
+                                            <small class="text-muted">Hace 2 horas</small>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox2" type="checkbox" checked>
-                                                <label for="checkbox2">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Lines From Great Russian Literature? Or E-mails From My Boss?</td>
+                                        <td><i class="pe-7s-user text-info"></i></td>
+                                        <td>Nuevo lector registrado: Juan Pérez</td>
                                         <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
+                                            <small class="text-muted">Hace 4 horas</small>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox3" type="checkbox" checked>
-                                                <label for="checkbox3">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit
-                                        </td>
+                                        <td><i class="pe-7s-bookmarks text-warning"></i></td>
+                                        <td>Préstamo realizado: "Base de Datos Avanzadas"</td>
                                         <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
+                                            <small class="text-muted">Hace 6 horas</small>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox4" type="checkbox">
-                                                <label for="checkbox4">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Create 4 Invisible User Experiences you Never Knew About</td>
+                                        <td><i class="pe-7s-check text-success"></i></td>
+                                        <td>Devolución registrada: "Programación en Java"</td>
                                         <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
+                                            <small class="text-muted">Hace 1 día</small>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox5" type="checkbox" >
-                                                <label for="checkbox5">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Read "Following makes Medium better"</td>
+                                        <td><i class="pe-7s-attention text-danger"></i></td>
+                                        <td>Préstamo vencido: "Inteligencia Artificial"</td>
                                         <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="checkbox">
-                                                <input id="checkbox6" type="checkbox">
-                                                <label for="checkbox6">
-
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>Unfollow 5 enemies from twitter</td>
-                                        <td class="td-actions text-right">
-                                            <button type="button" rel="tooltip" title="Edit Task" class="btn btn-info btn-simple btn-xs">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
-                                                <i class="fa fa-times"></i>
-                                            </button>
+                                            <small class="text-muted">Hace 2 días</small>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -175,7 +212,7 @@
                         <div class="footer">
                             <hr>
                             <div class="stats">
-                                <i class="fa fa-history"></i> Updated 3 minutes ago
+                                <i class="fa fa-history"></i> Actualizado hace 3 minutos
                             </div>
                         </div>
                     </div>

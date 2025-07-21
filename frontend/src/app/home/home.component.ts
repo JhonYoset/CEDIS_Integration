@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { LocationStrategy, PlatformLocation, Location } from '@angular/common';
 import { LegendItem, ChartType } from '../lbd/lbd-chart/lbd-chart.component';
 import * as Chartist from 'chartist';
+import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -24,32 +26,89 @@ export class HomeComponent implements OnInit {
     public activityChartOptions: any;
     public activityChartResponsive: any[];
     public activityChartLegendItems: LegendItem[];
-  constructor() { }
+
+    // Datos del dashboard
+    public dashboardStats = {
+      totalDocumentos: 0,
+      totalLectores: 0,
+      totalPrestamos: 0,
+      prestamosPendientes: 0
+    };
+
+    public currentUser: any = null;
+    public loading = true;
+
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
+      // Obtener usuario actual
+      this.authService.currentUser$.subscribe(user => {
+        console.log('Home component: Current user updated:', user);
+        this.currentUser = user;
+      });
+
+      // Cargar datos del dashboard
+      if (this.authService.isAuthenticated()) {
+        this.loadDashboardData();
+      } else {
+        console.log('Home component: User not authenticated, skipping data load');
+      }
+
+      // Configurar gráficos
+      this.setupCharts();
+  }
+
+  private loadDashboardData(): void {
+    this.loading = true;
+    console.log('Loading dashboard data...');
+
+    // Cargar estadísticas en paralelo
+    Promise.all([
+      this.apiService.getDocumentos({ page: 1, limit: 1 }).toPromise(),
+      this.apiService.getLectores({ page: 1, limit: 1 }).toPromise(),
+      this.apiService.getPrestamos({ page: 1, limit: 1 }).toPromise(),
+      this.apiService.getPrestamosPendientes().toPromise()
+    ]).then(([documentos, lectores, prestamos, pendientes]) => {
+      console.log('Dashboard data loaded:', { documentos, lectores, prestamos, pendientes });
+      this.dashboardStats = {
+        totalDocumentos: documentos?.total || 0,
+        totalLectores: lectores?.total || 0,
+        totalPrestamos: prestamos?.total || 0,
+        prestamosPendientes: pendientes?.length || 0
+      };
+      this.loading = false;
+    }).catch(error => {
+      console.error('Error loading dashboard data:', error);
+      this.loading = false;
+    });
+  }
+
+  private setupCharts(): void {
       this.emailChartType = ChartType.Pie;
       this.emailChartData = {
-        labels: ['62%', '32%', '6%'],
-        series: [62, 32, 6]
+        labels: ['Disponibles', 'Prestados', 'Vencidos'],
+        series: [65, 28, 7]
       };
       this.emailChartLegendItems = [
-        { title: 'Open', imageClass: 'fa fa-circle text-info' },
-        { title: 'Bounce', imageClass: 'fa fa-circle text-danger' },
-        { title: 'Unsubscribe', imageClass: 'fa fa-circle text-warning' }
+        { title: 'Disponibles', imageClass: 'fa fa-circle text-success' },
+        { title: 'Prestados', imageClass: 'fa fa-circle text-info' },
+        { title: 'Vencidos', imageClass: 'fa fa-circle text-danger' }
       ];
 
       this.hoursChartType = ChartType.Line;
       this.hoursChartData = {
-        labels: ['9:00AM', '12:00AM', '3:00PM', '6:00PM', '9:00PM', '12:00PM', '3:00AM', '6:00AM'],
+        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
         series: [
-          [287, 385, 490, 492, 554, 586, 698, 695, 752, 788, 846, 944],
-          [67, 152, 143, 240, 287, 335, 435, 437, 539, 542, 544, 647],
-          [23, 113, 67, 108, 190, 239, 307, 308, 439, 410, 410, 509]
+          [45, 52, 48, 61, 55, 67, 73, 68],
+          [23, 28, 31, 35, 42, 38, 45, 41]
         ]
       };
       this.hoursChartOptions = {
         low: 0,
-        high: 800,
+        high: 80,
         showArea: true,
         height: '245px',
         axisX: {
@@ -71,17 +130,16 @@ export class HomeComponent implements OnInit {
         }]
       ];
       this.hoursChartLegendItems = [
-        { title: 'Open', imageClass: 'fa fa-circle text-info' },
-        { title: 'Click', imageClass: 'fa fa-circle text-danger' },
-        { title: 'Click Second Time', imageClass: 'fa fa-circle text-warning' }
+        { title: 'Préstamos', imageClass: 'fa fa-circle text-info' },
+        { title: 'Devoluciones', imageClass: 'fa fa-circle text-success' }
       ];
 
       this.activityChartType = ChartType.Bar;
       this.activityChartData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
         series: [
-          [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
-          [412, 243, 280, 580, 453, 353, 300, 364, 368, 410, 636, 695]
+          [42, 38, 32, 47, 35, 28, 31, 34, 45, 52, 48, 61],
+          [28, 24, 20, 35, 25, 18, 22, 26, 32, 38, 35, 42]
         ]
       };
       this.activityChartOptions = {
@@ -102,11 +160,8 @@ export class HomeComponent implements OnInit {
         }]
       ];
       this.activityChartLegendItems = [
-        { title: 'Tesla Model S', imageClass: 'fa fa-circle text-info' },
-        { title: 'BMW 5 Series', imageClass: 'fa fa-circle text-danger' }
+        { title: 'Documentos Nuevos', imageClass: 'fa fa-circle text-info' },
+        { title: 'Lectores Nuevos', imageClass: 'fa fa-circle text-success' }
       ];
-
-
     }
-
 }
