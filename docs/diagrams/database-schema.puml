@@ -1,0 +1,170 @@
+@startuml CEDIS_Database_Schema
+!theme plain
+
+title Sistema CEDIS - Esquema de Base de Datos
+subtitle Estructura detallada de tablas y relaciones
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define view(x) class x << (V,#FFAAFF) >>
+!define enum(x) class x << (E,#AAFFAA) >>
+
+table(usuarios) {
+  🔑 id : SERIAL PRIMARY KEY
+  --
+  nombre : VARCHAR(100) NOT NULL
+  apellido : VARCHAR(100) NOT NULL
+  correo : VARCHAR(150) UNIQUE NOT NULL
+  tipo : usuario_tipo_enum NOT NULL
+  fecha_creacion : TIMESTAMP DEFAULT NOW()
+  fecha_actualizacion : TIMESTAMP DEFAULT NOW()
+  --
+  📋 Índices:
+  • idx_usuarios_correo (correo)
+  • idx_usuarios_tipo (tipo)
+}
+
+table(lectores) {
+  🔑 id : SERIAL PRIMARY KEY
+  --
+  tipo : lector_tipo_enum NOT NULL
+  nombre : VARCHAR(100) NOT NULL
+  apellido : VARCHAR(100) NOT NULL
+  identificacion : VARCHAR(20) UNIQUE NOT NULL
+  correo : VARCHAR(150) NOT NULL
+  telefono : VARCHAR(15)
+  fecha_registro : TIMESTAMP DEFAULT NOW()
+  estado : BOOLEAN DEFAULT TRUE
+  --
+  📋 Índices:
+  • idx_lectores_identificacion (identificacion)
+  • idx_lectores_correo (correo)
+  • idx_lectores_estado (estado)
+}
+
+table(categorias) {
+  🔑 id : SERIAL PRIMARY KEY
+  --
+  nombre : VARCHAR(100) UNIQUE NOT NULL
+  descripcion : TEXT
+  fecha_creacion : TIMESTAMP DEFAULT NOW()
+  fecha_actualizacion : TIMESTAMP DEFAULT NOW()
+  --
+  📋 Índices:
+  • idx_categorias_nombre (nombre)
+}
+
+table(documentos) {
+  🔑 id : SERIAL PRIMARY KEY
+  --
+  🔗 categoria_id : INTEGER NOT NULL
+  titulo : VARCHAR(200) NOT NULL
+  autor : VARCHAR(150) NOT NULL
+  editorial : VARCHAR(100) NOT NULL
+  tipo : documento_tipo_enum NOT NULL
+  fecha_publicacion : DATE
+  fecha_registro : TIMESTAMP DEFAULT NOW()
+  fecha_actualizacion : TIMESTAMP DEFAULT NOW()
+  estado : documento_estado_enum NOT NULL
+  --
+  📋 Índices:
+  • idx_documentos_categoria (categoria_id)
+  • idx_documentos_titulo (titulo)
+  • idx_documentos_autor (autor)
+  • idx_documentos_tipo (tipo)
+  • idx_documentos_estado (estado)
+}
+
+table(prestamos) {
+  🔑 id : SERIAL PRIMARY KEY
+  --
+  🔗 lector_id : INTEGER NOT NULL
+  🔗 documento_id : INTEGER NOT NULL
+  🔗 usuario_id : INTEGER NOT NULL
+  fecha_prestamo : DATE NOT NULL
+  fecha_devolucion_programada : DATE NOT NULL
+  fecha_devolucion_real : DATE
+  estado : VARCHAR(20) NOT NULL
+  observaciones : TEXT
+  --
+  📋 Índices:
+  • idx_prestamos_lector (lector_id)
+  • idx_prestamos_documento (documento_id)
+  • idx_prestamos_usuario (usuario_id)
+  • idx_prestamos_estado (estado)
+  • idx_prestamos_fechas (fecha_prestamo, fecha_devolucion_programada)
+}
+
+enum(usuario_tipo_enum) {
+  Administrador
+  Bibliotecario
+  Consultor
+}
+
+enum(lector_tipo_enum) {
+  Estudiante
+  Docente
+  Administrativo
+}
+
+enum(documento_tipo_enum) {
+  Libro
+  Tesis
+  Diapositiva
+  Otro
+}
+
+enum(documento_estado_enum) {
+  Disponible
+  "No disponible"
+  Reservado
+}
+
+' Relaciones Foreign Keys
+categorias ||--o{ documentos : "categoria_id"
+lectores ||--o{ prestamos : "lector_id"
+documentos ||--o{ prestamos : "documento_id"
+usuarios ||--o{ prestamos : "usuario_id"
+
+' Constraints y Triggers
+note top of usuarios
+  <b>🔒 Constraints:</b>
+  • correo debe ser único
+  • correo debe contener @
+  • tipo debe ser válido
+  
+  <b>🔄 Triggers:</b>
+  • update_fecha_actualizacion()
+end note
+
+note top of lectores
+  <b>🔒 Constraints:</b>
+  • identificacion debe ser única
+  • correo debe ser válido
+  • telefono formato válido
+  
+  <b>✅ Validaciones:</b>
+  • estado activo para préstamos
+end note
+
+note bottom of prestamos
+  <b>🔒 Constraints:</b>
+  • fecha_devolucion_programada > fecha_prestamo
+  • fecha_devolucion_real >= fecha_prestamo
+  • estado IN ('Prestado', 'Devuelto', 'Atrasado')
+  
+  <b>🔄 Triggers:</b>
+  • actualizar_estado_vencidos()
+  • actualizar_stock_documento()
+end note
+
+note bottom of documentos
+  <b>🔒 Constraints:</b>
+  • titulo no vacío
+  • categoria_id debe existir
+  • fecha_publicacion <= fecha_registro
+  
+  <b>📊 Funciones:</b>
+  • calcular_disponibilidad()
+end note
+
+@enduml

@@ -1,0 +1,83 @@
+@startuml CEDIS_Deployment
+!theme plain
+
+title Sistema CEDIS - Diagrama de Despliegue
+subtitle Arquitectura de infraestructura y despliegue
+
+node "🖥️ Servidor de Desarrollo" {
+    
+    node "🐳 Docker Container: Database" {
+        database "🐘 PostgreSQL 13" as postgres {
+            [📊 Base de Datos CEDIS]
+        }
+    }
+    
+    node "🐳 Docker Container: pgAdmin" {
+        [🔧 pgAdmin 4] as pgadmin
+    }
+    
+    node "🟢 Node.js Runtime" {
+        [🚀 Backend NestJS\nPuerto: 3000] as backend
+    }
+    
+    node "🅰️ Angular Dev Server" {
+        [🌐 Frontend Angular\nPuerto: 4200] as frontend
+    }
+}
+
+cloud "☁️ Servicios Externos" {
+    [🔐 Google OAuth 2.0] as google_oauth
+    [📧 Gmail API] as gmail
+}
+
+actor "👨‍💻 Desarrollador" as dev
+actor "👤 Usuario Final" as user
+
+' Conexiones de red
+user --> frontend : "HTTP/HTTPS\n:4200"
+frontend --> backend : "API REST\n:3000"
+backend --> postgres : "PostgreSQL\n:5432"
+dev --> pgadmin : "Web UI\n:8080"
+pgadmin --> postgres : "SQL\n:5432"
+
+backend --> google_oauth : "OAuth 2.0\nHTTPS"
+google_oauth --> gmail : "Profile Data"
+
+' Configuraciones
+note top of postgres
+  <b>Configuración DB:</b>
+  • Usuario: admin
+  • Password: root
+  • Base: postgres
+  • Puerto: 5432
+  • Volumen persistente
+end note
+
+note top of backend
+  <b>Configuración Backend:</b>
+  • Puerto: 3000
+  • Prefijo API: /api
+  • CORS habilitado
+  • JWT Secret configurado
+  • Google OAuth configurado
+end note
+
+note top of frontend
+  <b>Configuración Frontend:</b>
+  • Puerto: 4200
+  • Proxy a backend :3000
+  • Hash routing habilitado
+  • Guards de autenticación
+  • Interceptors HTTP
+end note
+
+note bottom of google_oauth
+  <b>Google OAuth Config:</b>
+  • Client ID configurado
+  • Client Secret seguro
+  • Callback URL: localhost:3000
+  • Scopes: email, profile
+  • Dominio restringido: unsa.edu.pe
+end note
+
+@enduml

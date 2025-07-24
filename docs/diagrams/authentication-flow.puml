@@ -1,0 +1,88 @@
+@startuml CEDIS_Authentication_Flow
+!theme plain
+
+title Sistema CEDIS - Flujo de Autenticación
+subtitle Proceso completo de autenticación con Google OAuth
+
+actor Usuario as U
+participant "Frontend\n(Angular)" as F
+participant "Backend\n(NestJS)" as B
+participant "Google OAuth" as G
+database "PostgreSQL" as DB
+
+== Inicio de Sesión ==
+
+U -> F: 1. Accede a /login
+F -> U: 2. Muestra pantalla de login\n"Ingresar con Correo UNSA"
+
+U -> F: 3. Clic en botón UNSA
+F -> F: 4. Muestra "Autenticando..."
+F -> B: 5. Redirige a /api/auth/google
+
+== Autenticación Google ==
+
+B -> G: 6. Inicia flujo OAuth 2.0
+G -> U: 7. Solicita credenciales Google
+U -> G: 8. Ingresa email @unsa.edu.pe
+G -> G: 9. Valida dominio UNSA
+
+alt Email válido @unsa.edu.pe
+    G -> B: 10. Callback con profile data
+    B -> B: 11. Valida estrategia Google
+    
+    == Validación en Base de Datos ==
+    
+    B -> DB: 12. Busca usuario por email
+    
+    alt Usuario existe
+        DB -> B: 13. Retorna datos usuario
+        B -> B: 14. Valida tipo de usuario
+        
+        alt Es Administrador
+            B -> B: 15. Genera JWT token
+            B -> F: 16. Redirige con token y user data\n/login?token=xxx&user=xxx
+            
+            F -> F: 17. Procesa callback
+            F -> F: 18. Establece sesión
+            F -> F: 19. Guarda token en localStorage
+            F -> U: 20. Redirige a /dashboard
+            
+        else No es Administrador
+            B -> F: 21. Redirige con error\n"Acceso denegado"
+            F -> U: 22. Muestra mensaje de error
+        end
+        
+    else Usuario no existe
+        B -> DB: 23. Crea nuevo usuario
+        DB -> B: 24. Retorna usuario creado
+        B -> B: 25. Determina tipo por email
+        note right: admin@unsa.edu.pe -> Administrador\nbibliotecario@unsa.edu.pe -> Bibliotecario\nOtros -> Consultor
+        B -> B: 26. Genera JWT token
+        B -> F: 27. Redirige con token y user data
+    end
+    
+else Email no válido
+    G -> B: 28. Error de dominio
+    B -> F: 29. Redirige con error
+    F -> U: 30. Muestra "Solo cuentas @unsa.edu.pe"
+end
+
+== Dashboard ==
+
+F -> B: 31. Solicita datos dashboard\ncon JWT token
+B -> B: 32. Valida JWT token
+B -> DB: 33. Consulta estadísticas
+DB -> B: 34. Retorna datos
+B -> F: 35. Envía datos JSON
+F -> U: 36. Muestra dashboard\ncon datos reales
+
+note over U, DB
+  <b>Datos del Dashboard:</b>
+  • Total documentos
+  • Total lectores  
+  • Total préstamos
+  • Préstamos pendientes
+  • Gráficos estadísticos
+end note
+
+@enduml

@@ -1,0 +1,108 @@
+@startuml CEDIS_API_Endpoints
+!theme plain
+
+title Sistema CEDIS - Endpoints de la API
+subtitle Documentación completa de la API REST
+
+package "🔐 Autenticación (/api/auth)" {
+    [GET /status] as auth_status
+    [GET /google] as auth_google
+    [GET /google/callback] as auth_callback
+    [POST /validate-email] as auth_validate
+}
+
+package "👤 Usuarios (/api/usuarios)" {
+    [POST /register-first-admin] as user_first_admin
+    [GET /] as user_list
+    [GET /:id] as user_get
+    [GET /profile/:id] as user_profile
+    [POST /] as user_create
+    [PUT /:id] as user_update
+    [DELETE /:id] as user_delete
+}
+
+package "📖 Lectores (/api/lectores)" {
+    [GET /] as reader_list
+    [GET /:id] as reader_get
+    [POST /] as reader_create
+    [PUT /:id] as reader_update
+    [DELETE /:id] as reader_delete
+}
+
+package "🏷️ Categorías (/api/categorias)" {
+    [GET /] as cat_list
+    [GET /:id] as cat_get
+    [POST /] as cat_create
+    [PUT /:id] as cat_update
+    [DELETE /:id] as cat_delete
+}
+
+package "📄 Documentos (/api/documentos)" {
+    [GET /] as doc_list
+    [GET /:id] as doc_get
+    [GET /categoria/:id] as doc_by_category
+    [POST /] as doc_create
+    [PUT /:id] as doc_update
+    [DELETE /:id] as doc_delete
+}
+
+package "📋 Préstamos (/api/prestamos)" {
+    [GET /] as loan_list
+    [GET /:id] as loan_get
+    [GET /pendientes] as loan_pending
+    [GET /lector/:id] as loan_by_reader
+    [GET /documento/:id] as loan_by_doc
+    [POST /] as loan_create
+    [PUT /:id] as loan_update
+    [PUT /:id/devolucion] as loan_return
+    [DELETE /:id] as loan_delete
+}
+
+' Permisos por rol
+note top of auth_status
+  <b>🔓 Público</b>
+  Sin autenticación requerida
+end note
+
+note top of user_first_admin
+  <b>🔓 Público</b>
+  Solo para crear primer admin
+end note
+
+note top of user_list
+  <b>🔐 Administrador + Bibliotecario</b>
+  Requiere autenticación JWT
+end note
+
+note top of reader_create
+  <b>🔐 Administrador + Bibliotecario</b>
+  Crear nuevos lectores
+end note
+
+note top of doc_create
+  <b>🔐 Administrador + Bibliotecario</b>
+  Registrar documentos
+end note
+
+note top of loan_create
+  <b>🔐 Administrador + Bibliotecario</b>
+  Procesar préstamos
+end note
+
+note bottom of loan_pending
+  <b>📊 Respuesta JSON:</b>
+  • Lista de préstamos vencidos
+  • Información de lector
+  • Información de documento
+  • Días de retraso
+end note
+
+note bottom of user_profile
+  <b>📊 Respuesta JSON:</b>
+  • Datos personales completos
+  • Estadísticas de uso
+  • Permisos del usuario
+  • Historial de actividad
+end note
+
+@enduml

@@ -1,0 +1,81 @@
+@startuml CEDIS_Entity_Relationship
+!define ENTITY class
+!define PK <b><color:red>
+!define FK <color:blue>
+
+title Sistema CEDIS - Diagrama Entidad-Relación
+subtitle Centro de Documentación de Ingeniería de Sistemas - UNSA
+
+ENTITY usuarios {
+  PK id : INTEGER
+  --
+  nombre : VARCHAR(100)
+  apellido : VARCHAR(100)
+  correo : VARCHAR(150) UNIQUE
+  tipo : ENUM('Administrador', 'Bibliotecario', 'Consultor')
+  fecha_creacion : TIMESTAMP
+  fecha_actualizacion : TIMESTAMP
+}
+
+ENTITY lectores {
+  PK id : INTEGER
+  --
+  tipo : ENUM('Estudiante', 'Docente', 'Administrativo')
+  nombre : VARCHAR(100)
+  apellido : VARCHAR(100)
+  identificacion : VARCHAR(20) UNIQUE
+  correo : VARCHAR(150)
+  telefono : VARCHAR(15)
+  fecha_registro : TIMESTAMP
+  estado : BOOLEAN
+}
+
+ENTITY categorias {
+  PK id : INTEGER
+  --
+  nombre : VARCHAR(100) UNIQUE
+  descripcion : TEXT
+  fecha_creacion : TIMESTAMP
+  fecha_actualizacion : TIMESTAMP
+}
+
+ENTITY documentos {
+  PK id : INTEGER
+  --
+  FK categoria_id : INTEGER
+  titulo : VARCHAR(200)
+  autor : VARCHAR(150)
+  editorial : VARCHAR(100)
+  tipo : ENUM('Libro', 'Tesis', 'Diapositiva', 'Otro')
+  fecha_publicacion : DATE
+  fecha_registro : TIMESTAMP
+  fecha_actualizacion : TIMESTAMP
+  estado : ENUM('Disponible', 'No disponible', 'Reservado')
+}
+
+ENTITY prestamos {
+  PK id : INTEGER
+  --
+  FK lector_id : INTEGER
+  FK documento_id : INTEGER
+  FK usuario_id : INTEGER
+  fecha_prestamo : DATE
+  fecha_devolucion_programada : DATE
+  fecha_devolucion_real : DATE
+  estado : VARCHAR(20)
+  observaciones : TEXT
+}
+
+' Relaciones
+categorias ||--o{ documentos : "tiene"
+lectores ||--o{ prestamos : "solicita"
+documentos ||--o{ prestamos : "se presta"
+usuarios ||--o{ prestamos : "gestiona"
+
+note top of usuarios : Usuarios del sistema\n(Administradores, Bibliotecarios, Consultores)
+note top of lectores : Personas que pueden\nsolicitar préstamos
+note top of categorias : Clasificación de\ndocumentos por área
+note top of documentos : Recursos bibliográficos\ndisponibles
+note top of prestamos : Registro de préstamos\ny devoluciones
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml CEDIS_System_Architecture
+!include <C4/C4_Container>
+
+title Sistema CEDIS - Arquitectura del Sistema
+subtitle Centro de Documentación de Ingeniería de Sistemas - UNSA
+
+Person(user, "Usuario UNSA", "Estudiante, Docente, Administrativo\ncon cuenta @unsa.edu.pe")
+Person(admin, "Administrador", "Personal autorizado\npara gestión del sistema")
+
+System_Boundary(cedis, "Sistema CEDIS") {
+    Container(frontend, "Frontend Angular", "Angular 14, TypeScript", "Interfaz de usuario\nresponsiva y moderna")
+    
+    Container(backend, "Backend API", "NestJS, TypeScript", "API REST con\nautenticación JWT")
+    
+    Container(auth, "Servicio de Autenticación", "Google OAuth 2.0", "Autenticación segura\ncon cuentas UNSA")
+    
+    ContainerDb(database, "Base de Datos", "PostgreSQL", "Almacenamiento persistente\nde datos del sistema")
+    
+    Container(admin_db, "Administrador DB", "pgAdmin", "Gestión y monitoreo\nde base de datos")
+}
+
+System_Ext(google, "Google OAuth", "Servicio de autenticación\nde Google")
+
+' Relaciones principales
+Rel(user, frontend, "Accede vía navegador", "HTTPS")
+Rel(admin, frontend, "Gestiona sistema", "HTTPS")
+
+Rel(frontend, backend, "Consume API", "HTTP/JSON")
+Rel(backend, database, "Consulta/Modifica", "SQL")
+Rel(backend, auth, "Valida tokens", "JWT")
+
+Rel(auth, google, "Autentica usuarios", "OAuth 2.0")
+Rel(admin, admin_db, "Administra DB", "HTTP")
+Rel(admin_db, database, "Gestiona", "PostgreSQL")
+
+' Notas técnicas
+note as N1
+  <b>Tecnologías Frontend:</b>
+  • Angular 14
+  • TypeScript
+  • Bootstrap
+  • RxJS
+  • Angular Guards
+end note
+
+note as N2
+  <b>Tecnologías Backend:</b>
+  • NestJS
+  • TypeORM
+  • JWT Strategy
+  • Google OAuth Strategy
+  • PostgreSQL Driver
+end note
+
+note as N3
+  <b>Seguridad:</b>
+  • JWT Tokens
+  • Role-based Access Control
+  • CORS configurado
+  • Validación de dominios UNSA
+end note
+
+@enduml

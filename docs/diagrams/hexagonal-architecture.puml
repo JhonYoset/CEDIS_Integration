@@ -1,0 +1,118 @@
+@startuml CEDIS_Hexagonal_Architecture
+!theme plain
+
+title Sistema CEDIS - Arquitectura Hexagonal (Backend)
+subtitle Clean Architecture implementada en NestJS
+
+package "🌐 Adaptadores Primarios (Driving)" {
+    [🎮 Controllers] as controllers
+    [🔐 Auth Guards] as guards
+    [📡 HTTP Interceptors] as interceptors
+}
+
+package "🏛️ Núcleo de Aplicación (Core)" {
+    package "📋 Casos de Uso (Application)" {
+        [👤 Usuario Service] as userService
+        [📖 Lector Service] as lectorService
+        [📄 Documento Service] as docService
+        [🏷️ Categoría Service] as catService
+        [📋 Préstamo Service] as prestamoService
+    }
+    
+    package "🏗️ Dominio (Domain)" {
+        [👤 Usuario Entity] as userEntity
+        [📖 Lector Entity] as lectorEntity
+        [📄 Documento Entity] as docEntity
+        [🏷️ Categoría Entity] as catEntity
+        [📋 Préstamo Entity] as prestamoEntity
+    }
+    
+    package "🔌 Contratos (Ports)" {
+        [👤 Usuario Repository] as userPort
+        [📖 Lector Repository] as lectorPort
+        [📄 Documento Repository] as docPort
+        [🏷️ Categoría Repository] as catPort
+        [📋 Préstamo Repository] as prestamoPort
+    }
+}
+
+package "🔧 Adaptadores Secundarios (Driven)" {
+    [🗄️ TypeORM Repositories] as repositories
+    [🐘 PostgreSQL Database] as database
+    [🔑 JWT Strategy] as jwtStrategy
+    [🌐 Google OAuth Strategy] as googleStrategy
+}
+
+' Relaciones Adaptadores Primarios
+controllers --> userService
+controllers --> lectorService
+controllers --> docService
+controllers --> catService
+controllers --> prestamoService
+
+guards --> jwtStrategy
+interceptors --> jwtStrategy
+
+' Relaciones Core
+userService --> userEntity
+userService --> userPort
+
+lectorService --> lectorEntity
+lectorService --> lectorPort
+
+docService --> docEntity
+docService --> docPort
+
+catService --> catEntity
+catService --> catPort
+
+prestamoService --> prestamoEntity
+prestamoService --> prestamoPort
+
+' Relaciones Adaptadores Secundarios
+userPort <|-- repositories
+lectorPort <|-- repositories
+docPort <|-- repositories
+catPort <|-- repositories
+prestamoPort <|-- repositories
+
+repositories --> database
+jwtStrategy --> database
+googleStrategy --> database
+
+note top of controllers
+  <b>Controladores REST:</b>
+  • UsuarioController
+  • LectorController
+  • DocumentoController
+  • CategoriaController
+  • PrestamoController
+  • AuthController
+end note
+
+note bottom of database
+  <b>Base de Datos:</b>
+  • PostgreSQL 13+
+  • Conexiones pooling
+  • Transacciones ACID
+  • Índices optimizados
+end note
+
+note right of userEntity
+  <b>Entidades de Dominio:</b>
+  • Lógica de negocio pura
+  • Sin dependencias externas
+  • Validaciones de dominio
+  • Reglas de negocio
+end note
+
+note left of repositories
+  <b>Implementaciones:</b>
+  • UsuarioImplRepository
+  • LectorImplRepository
+  • DocumentoImplRepository
+  • CategoriaImplRepository
+  • PrestamoImplRepository
+end note
+
+@enduml

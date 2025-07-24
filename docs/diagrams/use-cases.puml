@@ -1,0 +1,173 @@
+@startuml CEDIS_Use_Cases
+!theme plain
+
+title Sistema CEDIS - Diagrama de Casos de Uso
+subtitle Centro de Documentación de Ingeniería de Sistemas
+
+left to right direction
+
+actor "👨‍🎓 Estudiante" as estudiante
+actor "👨‍🏫 Docente" as docente
+actor "👨‍💼 Administrativo" as admin_person
+actor "📚 Bibliotecario" as bibliotecario
+actor "🔧 Administrador" as administrador
+actor "👁️ Consultor" as consultor
+
+rectangle "Sistema CEDIS" {
+    
+    package "🔐 Autenticación" {
+        usecase "Iniciar Sesión\ncon Google OAuth" as login
+        usecase "Validar Dominio\n@unsa.edu.pe" as validate_domain
+        usecase "Cerrar Sesión" as logout
+    }
+    
+    package "📚 Gestión de Documentos" {
+        usecase "Consultar Catálogo\nde Documentos" as view_catalog
+        usecase "Buscar Documentos\npor Categoría" as search_docs
+        usecase "Registrar Nuevo\nDocumento" as create_doc
+        usecase "Editar Información\nde Documento" as edit_doc
+        usecase "Eliminar Documento" as delete_doc
+        usecase "Gestionar Categorías" as manage_categories
+    }
+    
+    package "👥 Gestión de Lectores" {
+        usecase "Consultar Lista\nde Lectores" as view_readers
+        usecase "Registrar Nuevo\nLector" as create_reader
+        usecase "Editar Información\nde Lector" as edit_reader
+        usecase "Eliminar Lector" as delete_reader
+        usecase "Buscar Lectores" as search_readers
+    }
+    
+    package "📋 Gestión de Préstamos" {
+        usecase "Solicitar Préstamo" as request_loan
+        usecase "Procesar Préstamo" as process_loan
+        usecase "Consultar Historial\nde Préstamos" as view_history
+        usecase "Registrar Devolución" as return_book
+        usecase "Consultar Préstamos\nPendientes" as view_pending
+        usecase "Gestionar Préstamos\nVencidos" as manage_overdue
+    }
+    
+    package "📊 Reportes y Estadísticas" {
+        usecase "Ver Dashboard\ncon Estadísticas" as dashboard
+        usecase "Generar Reporte\nde Morosos" as overdue_report
+        usecase "Exportar Reportes" as export_reports
+        usecase "Consultar Estadísticas\nGenerales" as view_stats
+    }
+    
+    package "⚙️ Administración del Sistema" {
+        usecase "Gestionar Usuarios\ndel Sistema" as manage_users
+        usecase "Configurar Permisos\ny Roles" as manage_permissions
+        usecase "Monitorear Sistema" as monitor_system
+        usecase "Realizar Respaldos" as backup_system
+    }
+}
+
+' Relaciones de Autenticación (Todos los usuarios)
+estudiante --> login
+docente --> login
+admin_person --> login
+bibliotecario --> login
+administrador --> login
+consultor --> login
+
+login --> validate_domain
+estudiante --> logout
+docente --> logout
+admin_person --> logout
+bibliotecario --> logout
+administrador --> logout
+consultor --> logout
+
+' Relaciones de Lectores (Estudiantes, Docentes, Administrativos)
+estudiante --> view_catalog
+estudiante --> search_docs
+estudiante --> request_loan
+estudiante --> view_history
+
+docente --> view_catalog
+docente --> search_docs
+docente --> request_loan
+docente --> view_history
+
+admin_person --> view_catalog
+admin_person --> search_docs
+admin_person --> request_loan
+admin_person --> view_history
+
+' Relaciones de Consultor
+consultor --> view_catalog
+consultor --> search_docs
+consultor --> view_readers
+consultor --> view_history
+consultor --> dashboard
+consultor --> view_stats
+
+' Relaciones de Bibliotecario
+bibliotecario --> view_catalog
+bibliotecario --> search_docs
+bibliotecario --> create_doc
+bibliotecario --> edit_doc
+bibliotecario --> manage_categories
+
+bibliotecario --> view_readers
+bibliotecario --> create_reader
+bibliotecario --> edit_reader
+bibliotecario --> search_readers
+
+bibliotecario --> process_loan
+bibliotecario --> return_book
+bibliotecario --> view_pending
+bibliotecario --> manage_overdue
+
+bibliotecario --> dashboard
+bibliotecario --> overdue_report
+bibliotecario --> view_stats
+
+' Relaciones de Administrador (Acceso completo)
+administrador --> view_catalog
+administrador --> search_docs
+administrador --> create_doc
+administrador --> edit_doc
+administrador --> delete_doc
+administrador --> manage_categories
+
+administrador --> view_readers
+administrador --> create_reader
+administrador --> edit_reader
+administrador --> delete_reader
+administrador --> search_readers
+
+administrador --> process_loan
+administrador --> return_book
+administrador --> view_pending
+administrador --> manage_overdue
+
+administrador --> dashboard
+administrador --> overdue_report
+administrador --> export_reports
+administrador --> view_stats
+
+administrador --> manage_users
+administrador --> manage_permissions
+administrador --> monitor_system
+administrador --> backup_system
+
+note top of login
+  <b>Autenticación Segura:</b>
+  • Solo cuentas @unsa.edu.pe
+  • Google OAuth 2.0
+  • JWT Tokens
+  • Sesiones seguras
+end note
+
+note bottom of dashboard
+  <b>Dashboard Incluye:</b>
+  • Total documentos
+  • Total lectores
+  • Préstamos activos
+  • Préstamos vencidos
+  • Gráficos estadísticos
+  • Actividad reciente
+end note
+
+@enduml

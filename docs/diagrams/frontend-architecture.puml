@@ -1,0 +1,139 @@
+@startuml CEDIS_Frontend_Architecture
+!theme plain
+
+title Sistema CEDIS - Arquitectura Frontend
+subtitle Estructura modular de Angular con integración completa
+
+package "🎯 Core Application" {
+    [🚀 App Module] as app_module
+    [🛣️ App Routing] as app_routing
+    [🎨 App Component] as app_component
+}
+
+package "🔐 Authentication System" {
+    [🔑 Auth Service] as auth_service
+    [🛡️ Auth Guard] as auth_guard
+    [👑 Admin Guard] as admin_guard
+    [🔄 Auth Interceptor] as auth_interceptor
+    [🚪 Login Component] as login_component
+}
+
+package "📱 Layout Components" {
+    [🏗️ Admin Layout] as admin_layout
+    [📊 Sidebar] as sidebar
+    [🔝 Navbar] as navbar
+    [🔻 Footer] as footer
+}
+
+package "📄 Feature Modules" {
+    package "🏠 Dashboard" {
+        [📈 Home Component] as home
+        [📊 Chart Components] as charts
+    }
+    
+    package "👤 User Management" {
+        [👤 User Component] as user
+        [👥 User Service] as user_service
+    }
+    
+    package "📖 Lectores Module" {
+        [📖 Lectores Component] as lectores
+        [➕ Register Modal] as register_modal
+        [✏️ Edit Modal] as edit_modal
+        [👁️ View Modal] as view_modal
+    }
+    
+    package "📄 Documentos Module" {
+        [📄 Documentos Component] as documentos
+        [📝 Document Modals] as doc_modals
+    }
+    
+    package "📋 Préstamos Module" {
+        [📋 Prestamos Component] as prestamos
+        [📋 Prestamo Modals] as prestamo_modals
+    }
+    
+    package "📊 Reportes Module" {
+        [📊 Reportes Component] as reportes
+        [📤 Export Modals] as export_modals
+    }
+}
+
+package "🔧 Shared Services" {
+    [🌐 API Service] as api_service
+    [🔄 HTTP Client] as http_client
+    [💾 Local Storage] as local_storage
+}
+
+package "🎨 Shared Components" {
+    [🎨 LBD Module] as lbd_module
+    [📊 Chart Component] as chart_component
+    [🔔 Notifications] as notifications
+}
+
+' Dependencias principales
+app_module --> auth_service
+app_module --> auth_interceptor
+app_routing --> auth_guard
+app_routing --> admin_guard
+
+login_component --> auth_service
+auth_guard --> auth_service
+admin_guard --> auth_service
+auth_interceptor --> auth_service
+
+admin_layout --> sidebar
+admin_layout --> navbar
+admin_layout --> footer
+
+home --> api_service
+home --> charts
+user --> api_service
+user --> user_service
+
+lectores --> api_service
+documentos --> api_service
+prestamos --> api_service
+reportes --> api_service
+
+api_service --> http_client
+auth_service --> local_storage
+
+' Flujo de datos
+auth_service --> api_service : "JWT Token"
+api_service --> auth_interceptor : "HTTP Headers"
+auth_interceptor --> http_client : "Authenticated Requests"
+
+note top of auth_service
+  <b>🔐 Auth Service:</b>
+  • Google OAuth integration
+  • JWT token management
+  • User session handling
+  • Automatic logout on expiry
+end note
+
+note top of api_service
+  <b>🌐 API Service:</b>
+  • RESTful API calls
+  • Pagination support
+  • Error handling
+  • Response typing
+end note
+
+note bottom of auth_guard
+  <b>🛡️ Guards:</b>
+  • Route protection
+  • Role-based access
+  • Automatic redirects
+  • Session validation
+end note
+
+note bottom of home
+  <b>📊 Dashboard Features:</b>
+  • Real-time statistics
+  • Interactive charts
+  • Recent activity
+  • Quick actions
+end note
+
+@enduml
